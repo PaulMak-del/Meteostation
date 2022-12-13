@@ -18,8 +18,8 @@
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
-const char* ssid = "Wi-Fi_login";
-const char* password = "Wi-Fi_password";
+const char* ssid = "login";
+const char* password = "password";
 
 void setup() {
   Serial.begin(115200);
@@ -59,7 +59,8 @@ void setup() {
 }
 
 void loop() {
-  double temp;
+  double f_temp;
+  int i_temp;
   String main;
   JSONVar myObject;
 
@@ -79,7 +80,8 @@ void loop() {
       String payload = http.getString();    //Получения результата GET-запроса в виде строки
       Serial.println(payload);
       myObject = JSON.parse(payload);
-      temp = (double)myObject["main"]["temp"] - 273.15;
+      f_temp = (double)myObject["main"]["temp"] - 273.15;
+      i_temp = (int)(f_temp < 0 ? (f_temp - 0.5) : (f_temp + 0.5));
       main = (String)myObject["weather"][0]["main"];
     }
     else {
@@ -93,7 +95,7 @@ void loop() {
   //==================================
   //Получение и преобразование времени
   //==================================
-  setTime((int)(myObject["dt"]));
+  setTime((int)(myObject["dt"]) + 3 * 60 * 60);
   char str_time[12];
   sprintf(str_time, "%02d:%02d %d/%d/%d", hour(), minute(), day(), month(), year());
   
@@ -107,8 +109,8 @@ void loop() {
   display.println(str_time);
   display.println(main);
   display.setTextSize(2);
-  display.println("  " + (String)temp + (char)247 + 'C');
+  display.println("  " + (String)i_temp + (char)247 + 'C');
   display.display();
   
-  delay(30000);
+  delay(5000);
 }
